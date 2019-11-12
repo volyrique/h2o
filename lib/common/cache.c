@@ -200,7 +200,6 @@ void h2o_cache_release(h2o_cache_t *cache, h2o_cache_ref_t *ref)
         assert(!h2o_linklist_is_linked(&ref->_age_link));
         if (cache->destroy_cb != NULL)
             cache->destroy_cb(ref->value);
-        free(ref->key.base);
         free(ref);
     }
 }
@@ -215,8 +214,9 @@ int h2o_cache_set(h2o_cache_t *cache, uint64_t now, h2o_iovec_t key, h2o_cache_h
         keyhash = h2o_cache_calchash(key.base, key.len);
 
     /* create newref */
-    newref = h2o_mem_alloc(sizeof(*newref));
-    *newref = (h2o_cache_ref_t){h2o_strdup(NULL, key.base, key.len), keyhash, now, value, 0, {NULL}, {NULL}, 1};
+    newref = h2o_mem_alloc(sizeof(*newref) + key.len);
+    *newref = (h2o_cache_ref_t){now, {(char *) (newref + 1), key.len}, value, {NULL}, {NULL}, 1, keyhash, 0};
+    memcpy(newref->key.base, key.base, key.len);
 
     lock_cache(cache);
 

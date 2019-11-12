@@ -36,14 +36,14 @@ typedef struct st_h2o_cache_key_t {
 } h2o_cache_key_t;
 
 typedef struct st_h2o_cache_ref_t {
-    h2o_iovec_t key;
-    h2o_cache_hashcode_t keyhash;
     uint64_t at;
+    h2o_iovec_t key;
     h2o_iovec_t value;
-    int _requested_early_update;
     h2o_linklist_t _lru_link;
     h2o_linklist_t _age_link;
     size_t _refcnt;
+    h2o_cache_hashcode_t keyhash;
+    int _requested_early_update;
 } h2o_cache_ref_t;
 
 /**
